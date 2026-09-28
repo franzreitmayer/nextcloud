@@ -1,0 +1,86 @@
+services:
+
+  nextcloud:
+    image: ${NEXTCLOUD_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+      REDIS_HOST: redis
+
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS}
+
+    volumes:
+      - ./nextcloud:/var/www/html
+
+    networks:
+      - internal
+      - proxy
+
+
+  db:
+    image: ${MARIADB_IMAGE}
+    restart: unless-stopped
+
+    command:
+      - --transaction-isolation=READ-COMMITTED
+      - --binlog-format=ROW
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    volumes:
+      - ./db:/var/lib/mysql
+
+    networks:
+      - internal
+
+
+  redis:
+    image: ${REDIS_IMAGE}
+    restart: unless-stopped
+
+    volumes:
+      - ./redis:/data
+
+    networks:
+      - internal
+
+
+  cron:
+    image: ${NEXTCLOUD_IMAGE}
+    restart: unless-stopped
+
+    depends_on:
+      - db
+      - redis
+
+    entrypoint: /cron.sh
+
+    volumes:
+      - ./nextcloud:/var/www/html
+
+    networks:
+      - internal
+
+
+networks:
+
+  internal:
+    internal: true
+
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK}
