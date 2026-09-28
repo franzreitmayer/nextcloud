@@ -1,0 +1,33 @@
+# Environment / secrets
+.env
+.env.*
+!.env-example
+
+# Persistent application data
+nextcloud/
+db/
+redis/
+
+# Backups
+backup/
+backups/
+*.bak
+*.backup
+*.sql
+*.sql.gz
+*.dump
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.idea/
+.vscode/
