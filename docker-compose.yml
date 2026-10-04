@@ -21,6 +21,7 @@ services:
 
     volumes:
       - ./nextcloud:/var/www/html
+        # - ./drawiosigns:/var/www/html/drawiosigns:ro
 
     networks:
       - internal
@@ -75,6 +76,14 @@ services:
     networks:
       - internal
 
+  drawiosigns:
+    image: nginx:alpine
+    container_name: drawiosigns
+    restart: unless-stopped
+    volumes:
+      - ./drawiosigns:/usr/share/nginx/html/drawiosigns:ro
+    networks:
+      - proxy
 
 networks:
 
